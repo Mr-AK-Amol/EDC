@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Computer Exam System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="bootstrap.min.css">
   <style>
     * {
@@ -332,6 +332,24 @@
       text-align: center;
       font-weight: bold;
     }
+    
+    /* Cheating warning */
+    .cheat-warning {
+      background: rgba(220, 53, 69, 0.2);
+      color: #dc3545;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px 0;
+      border: 2px solid #dc3545;
+      text-align: center;
+      font-weight: bold;
+      animation: blink 1s infinite alternate;
+    }
+    
+    @keyframes blink {
+      from { opacity: 1; }
+      to { opacity: 0.7; }
+    }
   </style>
 </head>
 
@@ -421,7 +439,10 @@
 
   <!-- Result Page -->
   <div id="resultPage" class="card hidden">
-    <h2>Successfully completed the exam!</h2>
+    <h2 id="resultTitle">Successfully completed the exam!</h2>
+    <div id="cheatWarning" class="cheat-warning hidden">
+      Your exam was auto-submitted because you switched tabs multiple times.
+    </div>
     <p id="resultText">Thank you for participating!</p>
     <button class="btn" onclick="downloadResult()">Download Result PDF</button>
   </div>
@@ -431,56 +452,58 @@
   // Questions Data for EDC
   const questionBanks = {
     "EDC": [
-      { q: "What is the main function of a rectifier?", options: ["Convert AC to DC", "Convert DC to AC", "Regulate voltage", "Amplify signal"], answer: 0 },
-      { q: "Which component is used to filter the output of a rectifier?", options: ["Resistor", "Capacitor", "Inductor", "Transistor"], answer: 1 },
-      { q: "What is the typical forward voltage drop of a silicon diode?", options: ["0.3V", "0.7V", "1.2V", "2.0V"], answer: 1 },
-      { q: "Which type of diode is used for voltage regulation?", options: ["Zener diode", "LED", "Photodiode", "Varactor diode"], answer: 0 },
-      { q: "What is the primary function of a transistor?", options: ["Voltage regulation", "Signal amplification", "Rectification", "Filtering"], answer: 1 },
-      { q: "Which configuration provides both voltage and current gain?", options: ["Common base", "Common emitter", "Common collector", "All of the above"], answer: 1 },
-      { q: "What is the typical value of β (beta) for a general purpose transistor?", options: ["10-20", "50-200", "500-1000", "1000-5000"], answer: 1 },
-      { q: "Which amplifier class has the highest efficiency?", options: ["Class A", "Class B", "Class AB", "Class C"], answer: 3 },
-      { q: "What is the purpose of a heat sink in power transistors?", options: ["Increase gain", "Reduce noise", "Dissipate heat", "Improve frequency response"], answer: 2 },
-      { q: "Which oscillator circuit uses LC components for frequency determination?", options: ["RC phase shift", "Wien bridge", "Colpitts", "Crystal"], answer: 2 },
-      { q: "What is the main advantage of a crystal oscillator?", options: ["Low cost", "High frequency stability", "Wide frequency range", "High power output"], answer: 1 },
-      { q: "Which modulation technique varies the amplitude of the carrier?", options: ["AM", "FM", "PM", "PWM"], answer: 0 },
-      { q: "What is the typical frequency range of audio signals?", options: ["20Hz-20kHz", "100kHz-1MHz", "1MHz-100MHz", "100MHz-1GHz"], answer: 0 },
-      { q: "Which demodulator is used for AM signals?", options: ["Envelope detector", "PLL", "Ratio detector", "Foster-Seeley discriminator"], answer: 0 },
-      { q: "What is the main function of a mixer in communication systems?", options: ["Amplify signals", "Filter noise", "Combine frequencies", "Convert frequency"], answer: 3 },
-      { q: "Which digital logic family has the lowest power consumption?", options: ["TTL", "ECL", "CMOS", "RTL"], answer: 2 },
-      { q: "How many inputs does a NOR gate have?", options: ["1", "2", "3", "2 or more"], answer: 3 },
-      { q: "What is the output of an AND gate if one input is 0?", options: ["0", "1", "Depends on other inputs", "Undefined"], answer: 0 },
-      { q: "Which flip-flop has only one input?", options: ["SR flip-flop", "JK flip-flop", "D flip-flop", "T flip-flop"], answer: 2 },
-      { q: "What is the main function of a counter circuit?", options: ["Count pulses", "Store data", "Generate clock", "Amplify signals"], answer: 0 },
-      { q: "Which ADC type has the fastest conversion time?", options: ["Flash", "Successive approximation", "Dual slope", "Sigma-delta"], answer: 0 },
-      { q: "What is the resolution of an 8-bit DAC with 5V reference?", options: ["5V/8", "5V/256", "5V/512", "5V/1024"], answer: 1 },
-      { q: "Which component is used for electrical isolation?", options: ["Transformer", "Capacitor", "Resistor", "Diode"], answer: 0 },
-      { q: "What is the function of a voltage regulator?", options: ["Maintain constant voltage", "Convert AC to DC", "Amplify signals", "Filter noise"], answer: 0 },
-      { q: "Which power supply type has the best regulation?", options: ["Unregulated", "Linear regulated", "Switching", "All are equal"], answer: 2 },
-      { q: "What is the typical efficiency of a linear regulator?", options: ["20-30%", "40-50%", "60-70%", "80-90%"], answer: 1 },
-      { q: "Which instrument is used to measure frequency?", options: ["Voltmeter", "Ammeter", "Oscilloscope", "Frequency counter"], answer: 3 },
-      { q: "What does CRO stand for?", options: ["Cathode Ray Oscilloscope", "Current Resistance Oscillator", "Capacitor Resistor Oscillator", "Controlled Rectifier Output"], answer: 0 },
-      { q: "Which component stores energy in an electric field?", options: ["Resistor", "Capacitor", "Inductor", "Transistor"], answer: 1 },
-      { q: "What is the unit of capacitance?", options: ["Ohm", "Farad", "Henry", "Siemens"], answer: 1 },
-      { q: "Which law states that current is proportional to voltage?", options: ["Ohm's law", "Kirchhoff's law", "Faraday's law", "Lenz's law"], answer: 0 },
-      { q: "What is the total resistance of two 10Ω resistors in parallel?", options: ["5Ω", "10Ω", "20Ω", "100Ω"], answer: 0 },
-      { q: "Which theorem simplifies complex network analysis?", options: ["Thevenin's theorem", "Maxwell's theorem", "Einstein's theorem", "Boolean theorem"], answer: 0 },
-      { q: "What is the typical value of intrinsic impedance of free space?", options: ["50Ω", "120π Ω", "240π Ω", "377Ω"], answer: 3 },
-      { q: "Which antenna is omnidirectional?", options: ["Dipole", "Yagi", "Parabolic", "Horn"], answer: 0 },
-      { q: "What is the gain of an isotropic antenna?", options: ["0 dB", "1 dB", "2 dB", "3 dB"], answer: 0 },
-      { q: "Which transmission line has the lowest losses?", options: ["Coaxial cable", "Twisted pair", "Waveguide", "Fiber optic"], answer: 3 },
-      { q: "What is the typical wavelength of visible light?", options: ["400-700 nm", "1-10 μm", "1-10 mm", "1-10 m"], answer: 0 },
-      { q: "Which semiconductor material is used for LEDs?", options: ["Silicon", "Germanium", "Gallium Arsenide", "Carbon"], answer: 2 },
-      { q: "What is the typical turn-on voltage for an LED?", options: ["0.3V", "0.7V", "1.5-3V", "5V"], answer: 2 },
-      { q: "Which device is used to detect light?", options: ["Photodiode", "Varactor diode", "Zener diode", "Tunnel diode"], answer: 0 },
-      { q: "What is the main function of an optocoupler?", options: ["Amplify light", "Convert light to electricity", "Provide electrical isolation", "Generate light"], answer: 2 },
-      { q: "Which sensor converts temperature to electrical signal?", options: ["Thermistor", "LDR", "Piezoelectric sensor", "Strain gauge"], answer: 0 },
-      { q: "What is the typical output of a piezoelectric sensor?", options: ["Resistance change", "Voltage", "Current", "Capacitance change"], answer: 1 },
-      { q: "Which motor type has the highest starting torque?", options: ["Induction motor", "Synchronous motor", "DC series motor", "Stepper motor"], answer: 2 },
-      { q: "What is the function of a commutator in a DC motor?", options: ["Convert AC to DC", "Reverse current direction", "Reduce sparking", "Increase speed"], answer: 1 },
-      { q: "Which control system provides zero steady-state error?", options: ["P controller", "PI controller", "PD controller", "PID controller"], answer: 1 },
-      { q: "What is the typical sampling rate for audio signals?", options: ["8 kHz", "44.1 kHz", "100 kHz", "1 MHz"], answer: 1 },
-      { q: "Which multiplexing technique uses different time slots?", options: ["FDM", "TDM", "WDM", "CDM"], answer: 1 },
-      { q: "What is the main advantage of digital communication?", options: ["Less bandwidth", "Noise immunity", "Simple circuitry", "Low cost"], answer: 1 }
+  { q: "Which of the following is a part of the Business Model Canvas?", options: ["Customer Segments","Financial Projections","Angel Investors","Market Share"], answer: 1 },
+{ q: "The 'Value Proposition' in BMC represents?", options: ["Customer Value Delivery","Marketing Costs","Supplier Relations","Revenue Streams"], answer: 1 },
+{ q: "Which of these is NOT a block in BMC?", options: ["Key Partnerships","SWOT Analysis","Revenue Streams","Channels"], answer: 2 },
+{ q: "Uber offering convenient rides mainly reflects its?", options: ["Cost Structure","Revenue Model","Value Proposition","Key Partnership"], answer: 3 },
+{ q: "Nike targeting athletes, sports teams, and casual users is an example of?", options: ["Diversified Market","Niche Market","Segmented Market","Mass Market"], answer: 3 },
+{ q: "Which BMC block includes Alliances and Joint Ventures?", options: ["Key Activities","Key Partnerships","Revenue Streams","Customer Segments"], answer: 2 },
+{ q: "Which cost type remains constant regardless of production?", options: ["Fixed","Variable","Marginal","Operational"], answer: 1 },
+{ q: "Which stage is NOT part of channel stages?", options: ["Awareness","Evaluation","Delivery","Taxation"], answer: 4 },
+{ q: "Spotify offering free with ads and premium without ads is an example of?", options: ["Freemium Model","Subscription Model","Transaction Model","Advertising Model"], answer: 1 },
+{ q: "Google's algorithms are an example of which resource type?", options: ["Physical","Intellectual","Human","Financial"], answer: 2 },
+{ q: "Amazon's logistics and website support are examples of?", options: ["Key Activities","Key Partnerships","Cost Structure","Customer Segments"], answer: 1 },
+{ q: "Swiggy partnering with restaurants is an example of?", options: ["Key Activities","Key Partnerships","Revenue Streams","Value Proposition"], answer: 2 },
+{ q: "In BMC, what are Channels used for?", options: ["Reaching customers","Paying suppliers","Hiring staff","Designing products"], answer: 1 },
+{ q: "Which of these is an example of Human Resource?", options: ["Engineers","Patents","Algorithms","Buildings"], answer: 1 },
+{ q: "Which is an example of Intellectual Resource?", options: ["Algorithms","Machines","Vehicles","Engineers"], answer: 1 },
+{ q: "Communities as customer relationships are built through?", options: ["Shared platforms","Financial loans","Advertising only","Government policies"], answer: 1 },
+{ q: "Co-creation in customer relationships means?", options: ["Involving customers in design","Hiring agencies","Outsourcing operations","Training staff"], answer: 1 },
+{ q: "What type of cost is raw materials?", options: ["Fixed Cost","Variable Cost","Capital Cost","Sunk Cost"], answer: 2 },
+{ q: "Cost advantages as production increases are called?", options: ["Economies of Scale","Fixed Costs","Variable Costs","Sunk Costs"], answer: 1 },
+{ q: "BMC helps in?", options: ["Visualizing business model","Hiring employees","Recruiting investors","Creating advertisements"], answer: 1 },
+{ q: "Netflix recommending shows is an example of?", options: ["Community Relationship","Automated Relationship","Co-creation","Personal"], answer: 2 },
+{ q: "Which of these is NOT a BMC component?", options: ["Customer Segments","Value Propositions","Budgeting","Cost Structure"], answer: 3 },
+{ q: "Customer Segments in BMC refers to?", options: ["Types of products","Types of customers","Types of suppliers","Types of costs"], answer: 2 },
+{ q: "Apple using both website and retail stores is an example of?", options: ["Channels","Customer Relationship","Revenue Stream","Value Proposition"], answer: 1 },
+{ q: "Uber Eats provides food delivery. This is part of?", options: ["Key Partnerships","Value Proposition","Cost Structure","Revenue Model"], answer: 2 },
+{ q: "Which of the following is a Revenue Model?", options: ["Subscription","Segmentation","Brand Loyalty","Diversification"], answer: 1 },
+{ q: "Spotify offering basic free service and paid premium is an example of?", options: ["Freemium Model","Subscription Model","Advertising Model","Licensing Model"], answer: 1 },
+{ q: "PayPal charging per transaction follows which model?", options: ["Transaction Fee Model","Advertising Model","Freemium Model","Subscription Model"], answer: 1 },
+{ q: "YouTube earns mainly from?", options: ["Advertising Model","Licensing Model","Transaction Fee","Freemium"], answer: 1 },
+{ q: "Which cost includes rent and salaries?", options: ["Fixed Costs","Variable Costs","Marginal Costs","Opportunity Costs"], answer: 1 },
+{ q: "Utilities and raw materials are examples of?", options: ["Variable Costs","Fixed Costs","Sunk Costs","Indirect Costs"], answer: 1 },
+{ q: "Seed Funding usually comes from?", options: ["Founders and Friends","Government Grants","Banks","Stock Market"], answer: 1 },
+{ q: "Angel Investors provide?", options: ["Equity Investment","Loans with Interest","Donations","Government Subsidy"], answer: 1 },
+{ q: "Venture Capital is usually provided by?", options: ["Firms for high-growth startups","Friends and family","Government","Banks"], answer: 1 },
+{ q: "Flipkart received VC funding from?", options: ["Tiger Global","Netflix","Spotify","Apple"], answer: 1 },
+{ q: "Budgeting mainly helps in?", options: ["Planning income & expenses","Making advertisements","Hiring staff","Customer segmentation"], answer: 1 },
+{ q: "Financial Projections estimate?", options: ["Future revenue and costs","Past sales only","Employee growth","Customer loyalty"], answer: 1 },
+{ q: "Budgeting is important for?", options: ["Controlling overspending","Buying raw materials only","Recruiting only","Outsourcing work"], answer: 1 },
+{ q: "Financial projections are important for?", options: ["Investor confidence","Employee morale","Government rules","Product design"], answer: 1 },
+{ q: "Subscription fees are an example of?", options: ["Revenue Stream","Cost Structure","Key Activity","Customer Relationship"], answer: 1 },
+{ q: "Advertising income is part of?", options: ["Revenue Model","Key Resource","Key Activity","Value Proposition"], answer: 1 },
+{ q: "Economies of scale provide?", options: ["Cost advantages","New customers","Higher risk","Lower loyalty"], answer: 1 },
+{ q: "Seed funding is typically required in?", options: ["Early stage of startup","IPO stage","Growth stage","Exit stage"], answer: 1 },
+{ q: "Angel investors are usually?", options: ["Wealthy individuals","Banks","Employees","Customers"], answer: 1 },
+{ q: "Venture Capital is different from Angel Investment because?", options: ["It comes from firms, not individuals","It requires no equity","It is a donation","It is always debt"], answer: 1 },
+{ q: "A 3-year projection showing expected sales and profit is an example of?", options: ["Financial Projection","Cost Structure","Revenue Stream","Key Partnership"], answer: 1 },
+{ q: "Rent, salaries, and insurance belong to?", options: ["Fixed Costs","Variable Costs","Opportunity Costs","Marginal Costs"], answer: 1 },
+{ q: "Raw materials and utilities belong to?", options: ["Variable Costs","Fixed Costs","Sunk Costs","Capital Costs"], answer: 1 },
+{ q: "Seed funding is usually provided in exchange for?", options: ["Initial equity or convertible debt","Advertising space","Patents","Rent"], answer: 1 },
+{ q: "Budgeting helps track?", options: ["Business growth","Customer complaints","Recruitment","Product design"], answer: 1 },
+{ q: "Financial projections are created for?", options: ["Decision making","Hiring staff","Recruitment only","CSR"], answer: 1 },
+{ q: "Which multiplexing technique uses different time slots?", options: ["FDM", "TDM", "WDM", "CDM"], answer: 1 }
     ]
   };
 
@@ -498,6 +521,7 @@
   let studentName = '';
   let selectedSubject = 'EDC'; // Fixed subject
   let tabSwitchCount = 0;
+  let isAutoSubmitted = false;
 
   // Initialize the page
   document.addEventListener('DOMContentLoaded', function() {
@@ -558,6 +582,7 @@
       }
       
       if (tabSwitchCount === 4) {
+        isAutoSubmitted = true;
         alert('Exam closed due to repeated tab switching.');
         submitExam();
       }
@@ -705,6 +730,7 @@
     sessionStorage.setItem('examScore', score * marksPerQuestion);
     sessionStorage.setItem('studentName', studentName);
     sessionStorage.setItem('subject', selectedSubject);
+    sessionStorage.setItem('isAutoSubmitted', isAutoSubmitted);
     
     // Show result page
     document.getElementById('examPage').classList.add('hidden');
@@ -713,10 +739,28 @@
     // Update result text
     const percentage = (score / shuffledQuestions.length) * 100;
     let grade = '';
-    if (percentage >= 80) grade = 'A (Excellent)';
-    else if (percentage >= 60) grade = 'B (Good)';
-    else if (percentage >= 40) grade = 'C (Average)';
-    else grade = 'D (Needs Improvement)';
+    let greeting = '';
+    
+    if (percentage >= 80) {
+      grade = 'A (Excellent)';
+      greeting = 'Outstanding performance! You have a strong grasp of the subject.';
+    } else if (percentage >= 60) {
+      grade = 'B (Good)';
+      greeting = 'Good job! You have a solid understanding of the material.';
+    } else if (percentage >= 40) {
+      grade = 'C (Average)';
+      greeting = 'You passed, but there is room for improvement. Keep studying!';
+    } else {
+      grade = 'D (Needs Improvement)';
+      greeting = 'You need to study more. Consider reviewing the material and trying again.';
+    }
+    
+    // Show cheating warning if exam was auto-submitted
+    if (isAutoSubmitted) {
+      document.getElementById('cheatWarning').classList.remove('hidden');
+      document.getElementById('resultTitle').textContent = 'Exam Auto-Submitted!';
+      greeting = 'Your exam was submitted automatically due to multiple tab switches.';
+    }
     
     document.getElementById('resultText').innerHTML = `
       <p>Student: ${studentName}</p>
@@ -724,26 +768,38 @@
       <p>Score: ${score * marksPerQuestion} / ${shuffledQuestions.length * marksPerQuestion}</p>
       <p>Percentage: ${percentage.toFixed(2)}%</p>
       <p>Grade: ${grade}</p>
+      <p>${greeting}</p>
     `;
   }
 
   // Download result as PDF
   function downloadResult() {
-    // Use the already loaded local jsPDF
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    // Use the CDN-loaded jsPDF
+    const doc = new jspdf.jsPDF();
 
     const score = sessionStorage.getItem('examScore');
     const studentName = sessionStorage.getItem('studentName');
     const subject = sessionStorage.getItem('subject');
+    const isAutoSubmitted = sessionStorage.getItem('isAutoSubmitted') === 'true';
     const date = new Date().toLocaleString();
     const totalMarks = shuffledQuestions.length * marksPerQuestion;
     const percentage = (score / totalMarks) * 100;
     let grade = '';
-    if (percentage >= 80) grade = 'A (Excellent)';
-    else if (percentage >= 60) grade = 'B (Good)';
-    else if (percentage >= 40) grade = 'C (Average)';
-    else grade = 'D (Needs Improvement)';
+    let greeting = '';
+    
+    if (percentage >= 80) {
+      grade = 'A (Excellent)';
+      greeting = 'Outstanding performance!';
+    } else if (percentage >= 60) {
+      grade = 'B (Good)';
+      greeting = 'Good job!';
+    } else if (percentage >= 40) {
+      grade = 'C (Average)';
+      greeting = 'You passed, keep improving!';
+    } else {
+      grade = 'D (Needs Improvement)';
+      greeting = 'Study more and try again.';
+    }
 
     // Add content to PDF
     doc.setFontSize(22);
@@ -767,28 +823,40 @@
     doc.text(`Student Name: ${studentName}`, 20, 60);
     doc.text(`Subject: ${subject}`, 20, 70);
     doc.text(`Date: ${date}`, 20, 80);
+    
+    // Add warning if auto-submitted
+    if (isAutoSubmitted) {
+      doc.setTextColor(220, 53, 69);
+      doc.text('Exam was auto-submitted due to multiple tab switches', 20, 90);
+      doc.setTextColor(0, 0, 0);
+    }
 
     // Exam results
     doc.setFontSize(14);
     doc.setTextColor(102, 166, 255);
-    doc.text('Exam Summary', 20, 95);
+    doc.text('Exam Summary', 20, 105);
 
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Total Questions: ${shuffledQuestions.length}`, 20, 105);
-    doc.text(`Correct Answers: ${score / marksPerQuestion}`, 20, 115);
-    doc.text(`Score: ${score} / ${totalMarks}`, 20, 125);
-    doc.text(`Percentage: ${percentage.toFixed(2)}%`, 20, 135);
+    doc.text(`Total Questions: ${shuffledQuestions.length}`, 20, 115);
+    doc.text(`Correct Answers: ${score / marksPerQuestion}`, 20, 125);
+    doc.text(`Score: ${score} / ${totalMarks}`, 20, 135);
+    doc.text(`Percentage: ${percentage.toFixed(2)}%`, 20, 145);
 
     // Grade
     doc.setFontSize(14);
     doc.setTextColor(220, 53, 69);
-    doc.text(`Grade: ${grade}`, 20, 150);
+    doc.text(`Grade: ${grade}`, 20, 160);
+    
+    // Greeting
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(greeting, 20, 170);
 
     // Footer
     doc.setFontSize(10);
     doc.setTextColor(150, 150, 150);
-    doc.text('Thank you for taking the exam. Best wishes for your future!', 105, 170, { align: 'center' });
+    doc.text('Thank you for taking the exam. Best wishes for your future!', 105, 280, { align: 'center' });
 
     // Save the PDF
     doc.save(`${studentName.replace(/\s+/g, '_')}_${subject.replace(/\s+/g, '_')}_Result.pdf`);
