@@ -6,6 +6,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="bootstrap.min.css">
+  
+  <!-- Security Scripts to Disable Inspect and Right Click -->
+  <script>
+    // Disable right click
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      alert('Right-click is disabled for security reasons.');
+    });
+
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+    document.addEventListener('keydown', function(e) {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+        (e.ctrlKey && e.key === 'u') ||
+        (e.ctrlKey && e.key === 'U') ||
+        (e.metaKey && e.altKey && e.key === 'I') // For Mac
+      ) {
+        e.preventDefault();
+        alert('Developer tools are disabled for security reasons.');
+      }
+    });
+
+    // Prevent opening developer tools via browser menu
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F12') {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // Disable text selection during exam
+    function disableSelection() {
+      document.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+      });
+      document.style.webkitUserSelect = 'none';
+      document.style.mozUserSelect = 'none';
+      document.style.msUserSelect = 'none';
+      document.style.userSelect = 'none';
+    }
+
+    // Disable dragging
+    document.addEventListener('dragstart', function(e) {
+      e.preventDefault();
+    });
+
+    // Disable copy paste
+    document.addEventListener('copy', function(e) {
+      e.preventDefault();
+      alert('Copying is disabled during exam.');
+    });
+
+    document.addEventListener('cut', function(e) {
+      e.preventDefault();
+      alert('Cutting is disabled during exam.');
+    });
+
+    document.addEventListener('paste', function(e) {
+      e.preventDefault();
+      alert('Pasting is disabled during exam.');
+    });
+  </script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -353,7 +418,7 @@
   </style>
 </head>
 
-<body>
+<body onload="disableSelection()">
 <div class="container">
   <!-- Admin Login Page -->
   <div id="adminLoginPage" class="card">
@@ -395,6 +460,7 @@
         <li>⚡ All questions are compulsory.</li>
         <li>⚡ Each question carries 2 marks.</li>
         <li>⚡ Do not switch tabs/windows during exam.</li>
+        <li>⚡ Right-click and Developer Tools are disabled.</li>
       </ul>
     </div>
   </div>
@@ -417,6 +483,7 @@
         <li>⚡ All questions are compulsory.</li>
         <li>⚡ Each question carries 2 marks.</li>
         <li>⚡ Do not switch tabs/windows during exam.</li>
+        <li>⚡ Right-click and Developer Tools are disabled.</li>
       </ul>
     </div>
     
@@ -449,61 +516,98 @@
 </div>
 
 <script>
+  // Enhanced Security Functions
+  function disableSelection() {
+    document.addEventListener('selectstart', function(e) {
+      e.preventDefault();
+    });
+    document.style.webkitUserSelect = 'none';
+    document.style.mozUserSelect = 'none';
+    document.style.msUserSelect = 'none';
+    document.style.userSelect = 'none';
+  }
+
+  // Additional security measures
+  setInterval(function() {
+    // Check if developer tools are open by checking window dimensions
+    const widthThreshold = window.outerWidth - window.innerWidth > 160;
+    const heightThreshold = window.outerHeight - window.innerHeight > 160;
+    
+    if (widthThreshold || heightThreshold) {
+      alert('Developer tools detected! The exam will be submitted.');
+      submitExam();
+    }
+  }, 1000);
+
+  // Prevent keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    // Disable Ctrl+Shift+C, Ctrl+Shift+J, etc.
+    if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'I' || e.key === 'J' || e.key === 'K')) {
+      e.preventDefault();
+      alert('This action is not allowed during the exam.');
+    }
+    
+    // Disable F12, Ctrl+U, etc.
+    if (e.key === 'F12' || (e.ctrlKey && e.key === 'u')) {
+      e.preventDefault();
+      alert('This action is not allowed during the exam.');
+    }
+  });
+
   // Questions Data for EDC
   const questionBanks = {
     "EDC": [
   { q: "Which of the following is a part of the Business Model Canvas?", options: ["Customer Segments","Financial Projections","Angel Investors","Market Share"], answer: 1 },
-{ q: "The 'Value Proposition' in BMC represents?", options: ["Customer Value Delivery","Marketing Costs","Supplier Relations","Revenue Streams"], answer: 1 },
-{ q: "Which of these is NOT a block in BMC?", options: ["Key Partnerships","SWOT Analysis","Revenue Streams","Channels"], answer: 2 },
-{ q: "Uber offering convenient rides mainly reflects its?", options: ["Cost Structure","Revenue Model","Value Proposition","Key Partnership"], answer: 3 },
-{ q: "Nike targeting athletes, sports teams, and casual users is an example of?", options: ["Diversified Market","Niche Market","Segmented Market","Mass Market"], answer: 3 },
-{ q: "Which BMC block includes Alliances and Joint Ventures?", options: ["Key Activities","Key Partnerships","Revenue Streams","Customer Segments"], answer: 2 },
-{ q: "Which cost type remains constant regardless of production?", options: ["Fixed","Variable","Marginal","Operational"], answer: 1 },
-{ q: "Which stage is NOT part of channel stages?", options: ["Awareness","Evaluation","Delivery","Taxation"], answer: 4 },
-{ q: "Spotify offering free with ads and premium without ads is an example of?", options: ["Freemium Model","Subscription Model","Transaction Model","Advertising Model"], answer: 1 },
-{ q: "Google's algorithms are an example of which resource type?", options: ["Physical","Intellectual","Human","Financial"], answer: 2 },
-{ q: "Amazon's logistics and website support are examples of?", options: ["Key Activities","Key Partnerships","Cost Structure","Customer Segments"], answer: 1 },
-{ q: "Swiggy partnering with restaurants is an example of?", options: ["Key Activities","Key Partnerships","Revenue Streams","Value Proposition"], answer: 2 },
-{ q: "In BMC, what are Channels used for?", options: ["Reaching customers","Paying suppliers","Hiring staff","Designing products"], answer: 1 },
-{ q: "Which of these is an example of Human Resource?", options: ["Engineers","Patents","Algorithms","Buildings"], answer: 1 },
-{ q: "Which is an example of Intellectual Resource?", options: ["Algorithms","Machines","Vehicles","Engineers"], answer: 1 },
-{ q: "Communities as customer relationships are built through?", options: ["Shared platforms","Financial loans","Advertising only","Government policies"], answer: 1 },
-{ q: "Co-creation in customer relationships means?", options: ["Involving customers in design","Hiring agencies","Outsourcing operations","Training staff"], answer: 1 },
-{ q: "What type of cost is raw materials?", options: ["Fixed Cost","Variable Cost","Capital Cost","Sunk Cost"], answer: 2 },
-{ q: "Cost advantages as production increases are called?", options: ["Economies of Scale","Fixed Costs","Variable Costs","Sunk Costs"], answer: 1 },
-{ q: "BMC helps in?", options: ["Visualizing business model","Hiring employees","Recruiting investors","Creating advertisements"], answer: 1 },
-{ q: "Netflix recommending shows is an example of?", options: ["Community Relationship","Automated Relationship","Co-creation","Personal"], answer: 2 },
-{ q: "Which of these is NOT a BMC component?", options: ["Customer Segments","Value Propositions","Budgeting","Cost Structure"], answer: 3 },
-{ q: "Customer Segments in BMC refers to?", options: ["Types of products","Types of customers","Types of suppliers","Types of costs"], answer: 2 },
-{ q: "Apple using both website and retail stores is an example of?", options: ["Channels","Customer Relationship","Revenue Stream","Value Proposition"], answer: 1 },
-{ q: "Uber Eats provides food delivery. This is part of?", options: ["Key Partnerships","Value Proposition","Cost Structure","Revenue Model"], answer: 2 },
-{ q: "Which of the following is a Revenue Model?", options: ["Subscription","Segmentation","Brand Loyalty","Diversification"], answer: 1 },
-{ q: "Spotify offering basic free service and paid premium is an example of?", options: ["Freemium Model","Subscription Model","Advertising Model","Licensing Model"], answer: 1 },
-{ q: "PayPal charging per transaction follows which model?", options: ["Transaction Fee Model","Advertising Model","Freemium Model","Subscription Model"], answer: 1 },
-{ q: "YouTube earns mainly from?", options: ["Advertising Model","Licensing Model","Transaction Fee","Freemium"], answer: 1 },
-{ q: "Which cost includes rent and salaries?", options: ["Fixed Costs","Variable Costs","Marginal Costs","Opportunity Costs"], answer: 1 },
-{ q: "Utilities and raw materials are examples of?", options: ["Variable Costs","Fixed Costs","Sunk Costs","Indirect Costs"], answer: 1 },
-{ q: "Seed Funding usually comes from?", options: ["Founders and Friends","Government Grants","Banks","Stock Market"], answer: 1 },
-{ q: "Angel Investors provide?", options: ["Equity Investment","Loans with Interest","Donations","Government Subsidy"], answer: 1 },
-{ q: "Venture Capital is usually provided by?", options: ["Firms for high-growth startups","Friends and family","Government","Banks"], answer: 1 },
-{ q: "Flipkart received VC funding from?", options: ["Tiger Global","Netflix","Spotify","Apple"], answer: 1 },
-{ q: "Budgeting mainly helps in?", options: ["Planning income & expenses","Making advertisements","Hiring staff","Customer segmentation"], answer: 1 },
-{ q: "Financial Projections estimate?", options: ["Future revenue and costs","Past sales only","Employee growth","Customer loyalty"], answer: 1 },
-{ q: "Budgeting is important for?", options: ["Controlling overspending","Buying raw materials only","Recruiting only","Outsourcing work"], answer: 1 },
-{ q: "Financial projections are important for?", options: ["Investor confidence","Employee morale","Government rules","Product design"], answer: 1 },
-{ q: "Subscription fees are an example of?", options: ["Revenue Stream","Cost Structure","Key Activity","Customer Relationship"], answer: 1 },
-{ q: "Advertising income is part of?", options: ["Revenue Model","Key Resource","Key Activity","Value Proposition"], answer: 1 },
-{ q: "Economies of scale provide?", options: ["Cost advantages","New customers","Higher risk","Lower loyalty"], answer: 1 },
-{ q: "Seed funding is typically required in?", options: ["Early stage of startup","IPO stage","Growth stage","Exit stage"], answer: 1 },
-{ q: "Angel investors are usually?", options: ["Wealthy individuals","Banks","Employees","Customers"], answer: 1 },
-{ q: "Venture Capital is different from Angel Investment because?", options: ["It comes from firms, not individuals","It requires no equity","It is a donation","It is always debt"], answer: 1 },
-{ q: "A 3-year projection showing expected sales and profit is an example of?", options: ["Financial Projection","Cost Structure","Revenue Stream","Key Partnership"], answer: 1 },
-//{ q: "Rent, salaries, and insurance belong to?", options: ["Fixed Costs","Variable Costs","Opportunity Costs","Marginal Costs"], answer: 1 },
-//{ q: "Raw materials and utilities belong to?", options: ["Variable Costs","Fixed Costs","Sunk Costs","Capital Costs"], answer: 1 },
-{ q: "Seed funding is usually provided in exchange for?", options: ["Initial equity or convertible debt","Advertising space","Patents","Rent"], answer: 1 },
-{ q: "Budgeting helps track?", options: ["Business growth","Customer complaints","Recruitment","Product design"], answer: 1 },
-{ q: "Financial projections are created for?", options: ["Decision making","Hiring staff","Recruitment only","CSR"], answer: 1 },
-{ q: "Which multiplexing technique uses different time slots?", options: ["FDM", "TDM", "WDM", "CDM"], answer: 1 }
+{ q: "What does USP stand for in marketing?", options: ["Unique Sales Price","Universal Selling Point","Unique Selling Proposition","United Service Plan"], answer: 3 },
+{ q: "Which revenue model offers basic services for free and charges for premium features?", options: ["Subscription Model","Transaction Fee Model","Freemium Model","Advertising Model"], answer: 3 },
+{ q: "What type of funding comes from wealthy individuals investing in exchange for equity?", options: ["Seed Funding","Venture Capital","Angel Investors","Bank Loan"], answer: 3 },
+{ q: "Which of the 4Ps of Marketing refers to the amount charged for a product?", options: ["Product","Price","Place","Promotion"], answer: 2 },
+{ q: "Netflix recommending content based on viewing habits is an example of which BMC block?", options: ["Channels","Customer Relationships","Key Activities","Revenue Streams"], answer: 2 },
+{ q: "Dividing the market into distinct groups of buyers is known as:", options: ["Target Marketing","Mass Marketing","Customer Segmentation","Product Differentiation"], answer: 3 },
+{ q: "Rent and salaries are examples of what type of costs?", options: ["Variable Costs","Fixed Costs","Revenue Streams","Key Resources"], answer: 2 },
+{ q: "What does MVP stand for in a startup context?", options: ["Most Valuable Player","Minimum Viable Product","Maximum Value Proposition","Main Venture Partner"], answer: 2 },
+{ q: "Which BMC building block defines 'Who your customers are?'", options: ["Value Propositions","Channels","Customer Segments","Key Partnerships"], answer: 3 },
+{ q: "Zerodha's focus on 'lowest fees' is an example of its:", options: ["Cost Structure","USP","Key Activity","Channel"], answer: 2 },
+{ q: "Investment from firms for high-growth startups is known as:", options: ["Seed Funding","Angel Investment","Venture Capital","Crowdfunding"], answer: 3 },
+{ q: "Which of the following is a type of customer segmentation?", options: ["Demographic","Subscription","Fixed Cost","Platform"], answer: 1 },
+{ q: "The 'Freemium Model' is a type of:", options: ["Cost Structure","Revenue Stream","Key Activity","Customer Relationship"], answer: 2 },
+{ q: "Which BMC block describes 'How you deliver value to customers?'", options: ["Customer Segments","Value Propositions","Key Resources","Cost Structure"], answer: 2 },
+{ q: "What is the primary purpose of financial projections?", options: ["Design logos","Estimate future revenue and costs","Hire employees","Find suppliers"], answer: 2 },
+{ q: "Apple's use of its website and retail stores are examples of:", options: ["Key Activities","Channels","Key Partnerships","Cost Structure"], answer: 2 },
+{ q: "Setting a low initial price to attract customers is called:", options: ["Value-based Pricing","Penetration Pricing","Skimming Pricing","Cost-plus Pricing"], answer: 2 },
+{ q: "Which of these is a 'Key Resource' for Google?", options: ["Restaurant Partners","Algorithms","Delivery Agents","Raw Materials"], answer: 2 },
+{ q: "The image created in a customer's mind compared to competitors is called:", options: ["Targeting","Positioning","Segmentation","Promotion"], answer: 2 },
+{ q: "Budgeting helps a startup with:", options: ["Planning income and expenses","Designing the product logo","Writing marketing content","Finding angel investors"], answer: 1 },
+{ q: "Which of these is a 'Key Activity' for Amazon?", options: ["Logistics","Algorithms","Restaurant Partnerships","Cashback Offers"], answer: 1 },
+{ q: "Paytm giving cashbacks during launch is an example of:", options: ["Value-based Pricing","Penetration Pricing","Freemium Model","Subscription Model"], answer: 2 },
+{ q: "What type of cost are raw materials typically considered?", options: ["Fixed Costs","Variable Costs","One-time Costs","Startup Funding"], answer: 2 },
+{ q: "The 'Place' element in the 4Ps refers to:", options: ["Product location","Distribution channels","Pricing strategy","Promotional activities"], answer: 2 },
+{ q: "Which BMC block identifies 'What key assets you need?'", options: ["Key Activities","Key Resources","Key Partnerships","Cost Structure"], answer: 2 },
+{ q: "Improving website ranking on search engines is known as:", options: ["PPC","SEO","CRM","ERP"], answer: 2 },
+{ q: "Swiggy's partnerships with restaurants are part of its:", options: ["Key Resources","Key Partnerships","Customer Segments","Revenue Streams"], answer: 2 },
+{ q: "Which pricing strategy sets prices based on customer's perceived value?", options: ["Penetration Pricing","Cost-based Pricing","Value-based Pricing","Freemium Pricing"], answer: 3 },
+{ q: "The initial capital from founders or friends is called:", options: ["Venture Capital","Angel Investment","Seed Funding","Series A Funding"], answer: 3 },
+{ q: "Which of these is a type of 'Customer Relationship' in BMC?", options: ["Co-creation","Production","Licensing","Freemium"], answer: 1 },
+{ q: "A professional website and social media accounts contribute to:", options: ["Cost Structure","Digital Presence","Key Activities","Revenue Streams"], answer: 2 },
+{ q: "Which BMC building block defines 'How you make money?'", options: ["Channels","Revenue Streams","Key Activities","Value Propositions"], answer: 2 },
+{ q: "Partnering with influencers to promote products is called:", options: ["Affiliate Marketing","Influencer Marketing","Content Marketing","Email Marketing"], answer: 2 },
+{ q: "Cost advantages gained due to increased production are called:", options: ["Fixed Costs","Variable Costs","Economies of Scale","Diseconomies of Scale"], answer: 3 },
+{ q: "Which of these is an example of a 'Value Proposition'?", options: ["Using social media","Convenient and fast rides","Paying for ads","Partnering with suppliers"], answer: 2 },
+{ q: "Sending personalized emails to customers is part of:", options: ["SEO","Email Marketing","PPC","Video Marketing"], answer: 2 },
+{ q: "Which of these is a tip for using the Business Model Canvas?", options: ["Work on it alone","Never revise the initial plan","Use sticky notes for brainstorming","Focus only on revenue"], answer: 3 },
+{ q: "Byju's primarily serves which customer segment?", options: ["Urban Professionals","Students","Senior Citizens","Restaurants"], answer: 2 },
+{ q: "What type of resource are a company's patents and trademarks?", options: ["Physical","Human","Financial","Intellectual"], answer: 4 },
+{ q: "Flipkart receiving funding from Tiger Global is an example of:", options: ["Seed Funding","Angel Investment","Venture Capital","Bank Loan"], answer: 3 },
+{ q: "The 'Promotion' element in the 4Ps includes:", options: ["Product features","Pricing strategy","Advertising and social media","Distribution channels"], answer: 3 },
+{ q: "Which BMC block describes 'Who helps you succeed?'", options: ["Key Resources","Key Activities","Key Partnerships","Customer Segments"], answer: 3 },
+{ q: "Zomato's witty Twitter campaigns are part of which marketing element?", options: ["Product","Price","Place","Promotion"], answer: 4 },
+{ q: "What does SEO stand for?", options: ["Social Engagement Optimization","Search Engine Optimization","Sales and Earnings Overview","Strategic Equity Offering"], answer: 2 },
+{ q: "Spotify's free version with ads is an example of which revenue model?", options: ["Subscription","Transaction Fee","Freemium","Advertising"], answer: 3 },
+{ q: "Which of these is a 'Fixed Cost' for most businesses?", options: ["Raw Materials","Shipping Costs","Salaries","Utility Bills"], answer: 3 },
+{ q: "The process of estimating future revenue and costs is called:", options: ["Budgeting","Financial Projections","Cost Analysis","Revenue Modeling"], answer: 2 },
+{ q: "Nike's 'Just Do It' slogan helps establish its:", options: ["Cost Structure","Positioning","Revenue Stream","Key Activity"], answer: 2 },
+{ q: "Which of these is a digital marketing strategy?", options: ["Content Marketing","Fixed Costs","Key Resources","Customer Segments"], answer: 1 },
+{ q: "Uber providing convenient rides is part of its:", options: ["Cost Structure","Value Proposition","Key Resource","Channel"], answer: 2 }
     ]
   };
 
